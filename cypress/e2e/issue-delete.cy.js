@@ -1,65 +1,44 @@
-describe('Issue details editing', () => {
+describe('Issue deletion test', () => {
   beforeEach(() => {
     cy.visit('/');
     cy.url().should('eq', `${Cypress.env('baseUrl')}project`).then((url) => {
-      cy.visit(url + '/board');
-      cy.contains('This is an issue of type: Task.').click();
+    cy.visit(url + '/board');
+    //Find the specific issue
+    cy.contains('This is an issue of type: Task.').click()
     });
   });
 
-  it('Should update type, status, assignees, reporter, priority successfully', () => {
-    getIssueDetailsModal().within(() => {
-      cy.get('[data-testid="select:type"]').click('bottomRight');
-      cy.get('[data-testid="select-option:Story"]')
-          .trigger('mouseover')
-          .trigger('click');
-      cy.get('[data-testid="select:type"]').should('contain', 'Story');
+//Test Case 1: Issue Deletion
 
-      cy.get('[data-testid="select:status"]').click('bottomRight');
-      cy.get('[data-testid="select-option:Done"]').click();
-      cy.get('[data-testid="select:status"]').should('have.text', 'Done');
-
-      cy.get('[data-testid="select:assignees"]').click('bottomRight');
-      cy.get('[data-testid="select-option:Lord Gaben"]').click();
-      cy.get('[data-testid="select:assignees"]').click('bottomRight');
-      cy.get('[data-testid="select-option:Baby Yoda"]').click();
-      cy.get('[data-testid="select:assignees"]').should('contain', 'Baby Yoda');
-      cy.get('[data-testid="select:assignees"]').should('contain', 'Lord Gaben');
-
-      cy.get('[data-testid="select:reporter"]').click('bottomRight');
-      cy.get('[data-testid="select-option:Pickle Rick"]').click();
-      cy.get('[data-testid="select:reporter"]').should('have.text', 'Pickle Rick');
-
-      cy.get('[data-testid="select:priority"]').click('bottomRight');
-      cy.get('[data-testid="select-option:Medium"]').click();
-      cy.get('[data-testid="select:priority"]').should('have.text', 'Medium');
-    });
-  });
-
-  it('Should update title, description successfully', () => {
-    const title = 'TEST_TITLE';
-    const description = 'TEST_DESCRIPTION';
-
-    getIssueDetailsModal().within(() => {
-      cy.get('textarea[placeholder="Short summary"]')
-        .clear()
-        .type(title)
-        .blur();
-
-      cy.get('.ql-snow')
-        .click()
-        .should('not.exist');
-
-      cy.get('.ql-editor').clear().type(description);
-
-      cy.contains('button', 'Save')
-        .click()
-        .should('not.exist');
-
-      cy.get('textarea[placeholder="Short summary"]').should('have.text', title);
-      cy.get('.ql-snow').should('have.text', description);
-    });
-  });
-
-  const getIssueDetailsModal = () => cy.get('[data-testid="modal:issue-details"]');
+  it('Test Case 1: Issue Deletion', () => {
+  //Find the icon to delete issue
+  cy.get('[data-testid="icon:trash"]').click()
+  //Confirmation window is visible
+  cy.get('[data-testid="modal:confirm"]').should("be.visible")
+  //Confirm to delete
+  cy.contains('Delete issue').click()
+  //Issue is deleted
+  cy.contains("This is an issue of type: Task.").should("not.exist")
+  //Assert that the issue is deleted and no longer displayed on the Jira board
+  cy.reload()
+  cy.contains('This is an issue of type: Task.').should('not.exist');
 });
+
+//Test Case 2: Issue Deletion Cancellation
+
+it.only('Test Case 2: Cancel the deleting process', () => {
+  //Find the icon to delete issue
+  cy.get('[data-testid="icon:trash"]').click()
+  //Confirmation window is visible
+  cy.get('[data-testid="modal:confirm"]').should("be.visible")
+  //Cancel the deletion
+  cy.contains('Cancel').click()
+  cy.get('[data-testid="modal:issue-details"]').click();
+  //Click the close button to close the window
+  cy.get('[data-testid="icon:close"]').eq(0).click();
+
+  //Assert that issue is visble on the Jira board after reload
+  cy.reload()
+  cy.contains('This is an issue of type: Task.').should('exist');
+});
+   });
