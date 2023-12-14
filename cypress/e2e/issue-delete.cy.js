@@ -26,7 +26,7 @@ describe('Issue deletion test', () => {
 
 //Test Case 2: Issue Deletion Cancellation
 
-it.only('Test Case 2: Cancel the deleting process', () => {
+it('Test Case 2: Cancel the deleting process', () => {
   //Find the icon to delete issue
   cy.get('[data-testid="icon:trash"]').click()
   //Confirmation window is visible
